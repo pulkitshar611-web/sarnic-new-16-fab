@@ -120,7 +120,7 @@ export const createEstimate = async (req, res) => {
         estimate_date,
         valid_until || null,
         currency,
-        ce_status ,
+        ce_status,
         ce_po_status || "pending",
         ce_invoice_status || "pending",
         statusFlags.to_be_invoiced,
@@ -341,7 +341,7 @@ export const getPdfDataById = async (req, res) => {
     res.json({
       success: true,
       data: {
-        company_name:row.company_name,
+        company_name: row.company_name,
         company_logo: row.company_logo,
 
         estimate_no: row.estimate_no,
@@ -361,7 +361,7 @@ export const getPdfDataById = async (req, res) => {
         items: lineItems,
 
         summary: {
-          currency:row.currency,
+          currency: row.currency,
           subtotal: row.subtotal,
           vat_rate: row.vat_rate,
           vat_amount: row.vat_amount,
@@ -484,7 +484,7 @@ export const updateEstimate = async (req, res) => {
     );
 
     console.log(`🔍 Cost Estimate ${id} updated. Total Amount: ${totalAmount}`);
-    
+
     // 🔄 SYNC AMOUNT TO PURCHASE ORDERS (all POs linked to this estimate)
     let poSynced = false;
     try {
@@ -492,10 +492,10 @@ export const updateEstimate = async (req, res) => {
         `SELECT id, po_amount FROM purchase_orders WHERE cost_estimation_id = ?`,
         [id]
       );
-      
+
       if (linkedPOs && linkedPOs.length > 0) {
         console.log(`📋 Found ${linkedPOs.length} PO(s) linked to Cost Estimate ${id}`);
-        
+
         for (const po of linkedPOs) {
           try {
             await pool.query(
@@ -522,10 +522,10 @@ export const updateEstimate = async (req, res) => {
         `SELECT id, total_amount FROM invoices WHERE estimate_id = ?`,
         [id]
       );
-      
+
       if (linkedInvoices && linkedInvoices.length > 0) {
         console.log(`📋 Found ${linkedInvoices.length} Invoice(s) linked to Cost Estimate ${id}`);
-        
+
         for (const inv of linkedInvoices) {
           try {
             // Recalculate invoice amounts based on new estimate data
