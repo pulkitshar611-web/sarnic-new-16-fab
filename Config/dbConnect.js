@@ -3,12 +3,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+
+
 export const pool = mysql.createPool({
-  host: process.env.MYSQLHOST || "turntable.proxy.rlwy.net",
-  port: process.env.MYSQLPORT || 58831,
-  user: process.env.MYSQLUSER || "root",
-  password: process.env.MYSQLPASSWORD || "MjCmXsOewThQyNsmcWoJLniCDabvysGI",
-  database: process.env.MYSQLDATABASE || "railway",
+  host: process.env.DB_HOST || "turntable.proxy.rlwy.net",
+  port: process.env.DB_PORT || 58831,
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "MjCmXsOewThQyNsmcWoJLniCDabvysGI",
+  database: process.env.DB_NAME || "railway",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -23,8 +25,12 @@ export const pool = mysql.createPool({
     connection.release();
   } catch (error) {
     console.error("❌ Database connection error:", error.message);
-    console.error("Host:", process.env.MYSQLHOST || "turntable.proxy.rlwy.net");
-    console.error("Port:", process.env.MYSQLPORT || 58831);
+    console.error("Host:", process.env.DB_HOST || "turntable.proxy.rlwy.net");
+    console.error("Port:", process.env.DB_PORT || 58831);
   }
 })();
+
+
+
+
 
