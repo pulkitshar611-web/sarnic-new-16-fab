@@ -30,7 +30,7 @@ app.get("/api/ics-proxy", async (req, res) => {
 });
 app.use(
   cors({
-    origin: ["http://localhost:5173", "sarnic-latest-one.netlify.app"],
+    origin: ["http://localhost:5173", "https://sarnic-latest-one.netlify.app", "https://project.phoenix-dezign.com"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
