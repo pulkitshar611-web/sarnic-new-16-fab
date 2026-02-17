@@ -40,6 +40,10 @@ export const pool = mysql.createPool({
 });
 
 
+
+
+
+
 // Check connection
 (async () => {
   try {
