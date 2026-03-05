@@ -1,6 +1,7 @@
 import { pool } from "../Config/dbConnect.js";
 import fs from "fs";
 import cloudinary from "../cloudinary/cloudinary.js";
+import imagekit from "../imagekit.js";
 
 
 const calculateReceivablePOFlags = (ce_po_status, ce_invoice_status) => {
@@ -30,7 +31,7 @@ export const createPurchaseOrder = async (req, res) => {
       po_date,
       cost_estimation_id
     } = req.body;
-    console.log("po console",req.body);
+    console.log("po console", req.body);
 
     if (
       !po_number ||
@@ -43,15 +44,17 @@ export const createPurchaseOrder = async (req, res) => {
       return res.status(400).json({ message: "Required fields missing" });
     }
 
-    /* ---------- Upload PO Document ---------- */
+    /* ---------- Upload PO Document (Using ImageKit for better PDF reliability) ---------- */
     let po_document = null;
     if (req.files?.po_document) {
-      const result = await cloudinary.uploader.upload(
-        req.files.po_document.tempFilePath,
-        { folder: "purchase_orders" }
-      );
-      po_document = result.secure_url;
-      fs.unlinkSync(req.files.po_document.tempFilePath);
+      const file = req.files.po_document;
+      const result = await imagekit.upload({
+        file: fs.readFileSync(file.tempFilePath),
+        fileName: file.name,
+        folder: "/purchase_orders",
+      });
+      po_document = result.url;
+      fs.unlinkSync(file.tempFilePath);
     }
 
     /* ---------- Create PO ---------- */
@@ -185,11 +188,18 @@ export const getPurchaseOrderById = async (req, res) => {
         po.*,
         p.project_name,
         p.project_no,
-        cs.name AS client_name
+        cs.name AS client_name,
+        e.id AS estimate_id,
+        e.estimate_no,
+        e.currency,
+        e.vat_rate,
+        e.notes,
+        e.line_items
       FROM purchase_orders po
       LEFT JOIN projects p ON p.id = po.project_id
       LEFT JOIN clients_suppliers cs 
         ON cs.id = po.client_id AND cs.type = 'client'
+      LEFT JOIN estimates e ON e.id = po.cost_estimation_id
       WHERE po.id = ?
     `, [id]);
 
@@ -217,12 +227,14 @@ export const updatePurchaseOrder = async (req, res) => {
 
     let po_document = null;
     if (req.files?.po_document) {
-      const result = await cloudinary.uploader.upload(
-        req.files.po_document.tempFilePath,
-        { folder: "purchase_orders" }
-      );
-      po_document = result.secure_url;
-      fs.unlinkSync(req.files.po_document.tempFilePath);
+      const file = req.files.po_document;
+      const result = await imagekit.upload({
+        file: fs.readFileSync(file.tempFilePath),
+        fileName: file.name,
+        folder: "/purchase_orders",
+      });
+      po_document = result.url;
+      fs.unlinkSync(file.tempFilePath);
     }
 
     await pool.query(
